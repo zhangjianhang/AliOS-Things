@@ -1,301 +1,144 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file debug.h
+ * @copyright Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef AOS_DEBUG_H
-#define AOS_DEBUG_H
+#ifndef AOS_DBG_H
+#define AOS_DBG_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SHORT_FILE __FILENAME__
+#include <stdint.h>
 
-#define debug_print_assert(A,B,C,D,E,F)
-
-#if (!defined(unlikely))
-#define unlikely(EXPRESSSION) !!(EXPRESSSION)
-#endif
-
-/*
- * Check that an expression is true (non-zero).
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method.
+/** @addtogroup debug debug
+ *  DEBUG API: debug service for AliOS Things
  *
- * @param[in]  X  expression to be evaluated.
+ *  @{
  */
-#if (!defined(check))
-#define check(X)                                                                            \
-        do {                                                                                \
-            if (unlikely(!(X))) {                                                           \
-                debug_print_assert(0, #X, NULL, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-            }                                                                               \
-        } while(1 == 0)
-#endif
 
-/*
- * Check that an expression is true (non-zero) with an explanation.
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method.
+/**
+ * Show backtrace when called by printf
  *
- * @param[in]  X       expression to be evaluated.
- * @param[in]  STR     If the expression evaluate to false, custom string to print.
+ * @note: printf should be check when used in interrupt routing
+ *
+ * @retrun NULL
  */
-#if (!defined(check_string))
-#define check_string(X, STR)                                                               \
-        do {                                                                               \
-            if (unlikely(!(X))) {                                                          \
-                debug_print_assert(0, #X, STR, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                AOS_ASSERTION_FAIL_ACTION();                                               \
-            }                                                                              \
-        } while(1 == 0)
-#endif
+void aos_debug_backtrace_now(void);
 
-/*
- * Requires that an expression evaluate to true.
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method then jumps to a label.
+/**
+ * Show task backtrace when called by printf
  *
- * @param[in]  X      expression to be evalulated.
- * @param[in]  LABEL  if expression evaluate to false,jumps to the LABEL.
+ * @note: printf should be check when used in interrupt routing
+ *
+ * @param[in]  taskname  the task name which is need to be got
+ *
+ * @retrun NULL
  */
-#if (!defined(require))
-#define require(X, LABEL)                                                                     \
-        do {                                                                                  \
-            if (unlikely(!(X))) {                                                             \
-                debug_print_assert( 0, #X, NULL, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__ ); \
-                goto LABEL;                                                                   \
-            }                                                                                 \
-        } while(1 == 0)
-#endif
+void aos_debug_backtrace_task(char *taskname);
 
-/*
- * Requires that an expression evaluate to true with an explanation.
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) and a custom explanation string using the default debugging output method then jumps to a label.
+/**
+ * Show the overview of memory(heap and pool)
  *
- * @param[in]  X      expression to be evalulated.
- * @param[in]  LABEL  if expression evaluate to false,jumps to the LABEL.
- * @param[in]  STR    if expression evaluate to false,custom explanation string to print.
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_string))
-#define require_string(X, LABEL, STR)                                                      \
-        do {                                                                               \
-            if (unlikely(!(X))) {                                                          \
-                debug_print_assert(0, #X, STR, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                goto LABEL;                                                                \
-            }                                                                              \
-        } while(1 == 0)
-#endif
+void aos_debug_mm_overview(int (*print_func)(const char *fmt, ...));
 
-/*
- * Requires that an expression evaluate to true.
- * If expression evalulates to false, this jumps to a label. No debugging information is printed.
+/**
+ * Show the overview of tasks
  *
- * @param[in]  X      expression to be evalulated
- * @param[in]  LABEL  if expression evaluate to false,jumps to the LABEL.
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_quiet))
-#define require_quiet(X, LABEL)   \
-        do {                      \
-            if (unlikely(!(X))) { \
-                goto LABEL;       \
-            }                     \
-        } while(1 == 0)
-#endif
+void aos_debug_task_overview(int (*print_func)(const char *fmt, ...));
 
-/*
- * Require that an error code is noErr (0).
- * If the error code is non-0, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method then jumps to a label.
+/**
+ * Show the overview of buf_queue
  *
- * @param[in]  ERR    error to be evaluated
- * @param[in]  LABEL  If the error code is non-0,jumps to the LABEL.
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_noerr))
-#define require_noerr(ERR, LABEL)                                                                    \
-        do {                                                                                         \
-            int localErr;                                                                            \
-                                                                                                     \
-            localErr = (int)(ERR);                                                                   \
-            if (unlikely(localErr != 0)) {                                                           \
-                debug_print_assert(localErr, NULL, NULL, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                goto LABEL;                                                                          \
-            }                                                                                        \
-                                                                                                     \
-        } while(1 == 0)
-#endif
+void aos_debug_buf_queue_overview(int (*print_func)(const char *fmt, ...));
 
-/*
- * Require that an error code is noErr (0) with an explanation.
- * If the error code is non-0, this prints debugging information (actual expression string, file, line number,
- * function name, etc.), and a custom explanation string using the default debugging output method using the
- * default debugging output method then jumps to a label.
+/**
+ * Show the overview of queue
  *
- * @param[in]  ERR    error to be evaluated
- * @param[in]  LABEL  If the error code is non-0, jumps to the LABEL.
- * @param[in]  STR    If the error code is non-0, custom explanation string to print
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_noerr_string))
-#define require_noerr_string(ERR, LABEL, STR)                                                       \
-        do {                                                                                        \
-            int localErr;                                                                           \
-                                                                                                    \
-            localErr = (int)(ERR);                                                                  \
-            if (unlikely(localErr != 0)) {                                                          \
-                debug_print_assert(localErr, NULL, STR, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                goto LABEL;                                                                         \
-            }                                                                                       \
-        } while(1 == 0)
-#endif
+void aos_debug_queue_overview(int (*print_func)(const char *fmt, ...));
 
-/*
- * Require that an error code is noErr (0)  with an explanation and action to execute otherwise.
- * If the error code is non-0, this prints debugging information (actual expression string, file, line number,
- * function name, etc.), and a custom explanation string using the default debugging output method using the
- * default debugging output method then executes an action and jumps to a label.
+/**
+ * Show the overview of sem
  *
- * @param[in]  ERR     error to be evaluated.
- * @param[in]  LABEL   If the error code is non-0, jumps to the LABEL.
- * @param[in]  ACTION  If the error code is non-0, custom code to executes.
- * @param[in]  STR     If the error code is non-0, custom explanation string to print.
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_noerr_action_string))
-#define require_noerr_action_string(ERR, LABEL, ACTION, STR)                                        \
-        do {                                                                                        \
-            int localErr;                                                                           \
-                                                                                                    \
-            localErr = (int)(ERR);                                                                  \
-            if (unlikely(localErr != 0)) {                                                          \
-                debug_print_assert(localErr, NULL, STR, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                { ACTION; }                                                                         \
-                goto LABEL;                                                                         \
-            }                                                                                       \
-        } while(1 == 0)
-#endif
+void aos_debug_sem_overview(int (*print_func)(const char *fmt, ...));
 
-/*
- * Require that an error code is noErr (0).
- * If the error code is non-0, this jumps to a label. No debugging information is printed.
+/**
+ * Show the overview of all(task/memory/bufqueue/queue/sem)
  *
- * @param[in]  ERR    error to be evaluated.
- * @param[in]  LABEL  If the error code is non-0, jumps to the LABEL.
+ * @param[in]  print_func  function to output information, NULL for "printf"
+ *
+ * @retrun NULL
  */
-#if (!defined(require_noerr_quiet))
-#define require_noerr_quiet(ERR, LABEL) \
-        do {                            \
-            if (unlikely((ERR) != 0)) { \
-                goto LABEL;             \
-            }                           \
-        } while(1 == 0)
-#endif
+void aos_debug_overview(void);
 
-/*
- * Require that an error code is noErr (0) with an action to execute otherwise.
- * If the error code is non-0, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method then executes an action and jumps to a label.
+/**
+ * This function will statistics the task run time in the previous statistics cycle
  *
- * @param[in]  ERR     error to be evaluated.
- * @param[in]  LABEL   If the error code is non-0, jumps to the LABEL.
- * @param[in]  ACTION  If the error code is non-0, custom code to executes.
+ * @return NULL
  */
-#if (!defined(require_noerr_action))
-#define require_noerr_action(ERR, LABEL, ACTION)                                                     \
-        do {                                                                                         \
-            int localErr;                                                                            \
-                                                                                                     \
-            localErr = (int)(ERR);                                                                   \
-            if (unlikely(localErr != 0)) {                                                           \
-                debug_print_assert(localErr, NULL, NULL, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                { ACTION; }                                                                          \
-                goto LABEL;                                                                          \
-            }                                                                                        \
-        } while(1 == 0)
-#endif
+void aos_debug_task_cpu_usage_stats(void);
 
-/*
- * Require that an error code is noErr (0) with an action to execute otherwise.
- * If the error code is non-0, this executes an action and jumps to a label. No debugging information is printed.
+/**
+ * This function will get the cpuusage for the specified task
  *
- * @param[in]  ERR     error to be evaluated.
- * @param[in]  LABEL   If the error code is non-0, jumps to the LABEL.
- * @param[in]  ACTION  If the error code is non-0, custom code to executes.
+ * @param[in]  taskname  the task name which is need to be got
+ *
+ * @return -1 is error, others is cpuusage, the units are 1/10,000
  */
-#if (!defined(require_noerr_action_quiet))
-#define require_noerr_action_quiet(ERR, LABEL, ACTION) \
-        do {                                           \
-            if (unlikely((ERR) != 0)) {                \
-                { ACTION; }                            \
-                goto LABEL;                            \
-            }                                          \
-        } while(1 == 0)
-#endif
+int32_t aos_debug_task_cpu_usage_get(char *taskname);
 
-/*
- * Requires that an expression evaluate to true with an action to execute otherwise.
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) using the default debugging output method then executes an action and jumps to a label.
+/**
+ * This function will get the cpuusage for the specified CPU
  *
- * @param[in]  X       expression to be evaluated.
- * @param[in]  LABEL   If the expression evaluate to false, jumps to the LABEL.
- * @param[in]  ACTION  If the expression evaluate to false, custom code to executes.
+ * @param[in]   cpuid   the cpu id to obtain CPU utilization
+ *
+ * @return cpuusage, the units are 1/10,000
  */
-#if (!defined(require_action))
-#define require_action(X, LABEL, ACTION)                                                    \
-        do {                                                                                \
-            if (unlikely(!(X))) {                                                           \
-                debug_print_assert(0, #X, NULL, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                { ACTION; }                                                                 \
-                goto LABEL;                                                                 \
-            }                                                                               \
-        } while (1 == 0)
-#endif
+uint32_t aos_debug_total_cpu_usage_get(uint32_t cpuid);
 
-/*
- * Requires that an expression evaluate to true with an explanation and action to execute otherwise.
- * If expression evalulates to false, this prints debugging information (actual expression string, file, line number,
- * function name, etc.) and a custom explanation string using the default debugging output method then executes an
- * action and jumps to a label.
+/**
+ * This function will show the statistics for CPU utilization
  *
- * @param[in]  X       expression to be evaluated.
- * @param[in]  LABEL   If the expression evaluate to false, jumps to the LABEL.
- * @param[in]  ACTION  If the expression evaluate to false, custom code to executes.
- * @param[in]  STR     If the expression evaluate to false, custom string to print.
+ * @return NULL
  */
-#if (!defined(require_action_string))
-#define require_action_string(X, LABEL, ACTION, STR)                                       \
-        do {                                                                               \
-            if (unlikely(!(X))) {                                                          \
-                debug_print_assert(0, #X, STR, SHORT_FILE, __LINE__, __PRETTY_FUNCTION__); \
-                { ACTION; }                                                                \
-                goto LABEL;                                                                \
-            }                                                                              \
-        } while (1 == 0)
-#endif
+void aos_debug_total_cpu_usage_show(void);
 
-/*
- * Requires that an expression evaluate to true with an action to execute otherwise.
- * If expression evalulates to false, this executes an action and jumps to a label.
- * No debugging information is printed.
+/**
+ * Get system reboot reason
  *
- * @param[in]  X       expression to be evaluated.
- * @param[in]  LABEL   If the expression evaluate to false, jumps to the LABEL.
- * @param[in]  ACTION  If the expression evaluate to false, custom code to executes.
+ * @return reboot reason:
+ * 0x01 for watchdog reset;
+ * 0x02 for system panic
+ * 0x03 for system repower
+ * 0x04 for system fatal error
  */
-#if (!defined(require_action_quiet))
-#define require_action_quiet(X, LABEL, ACTION) \
-        do {                                   \
-            if (unlikely(!(X))) {              \
-                { ACTION; }                    \
-                goto LABEL;                    \
-            }                                  \
-                                               \
-        } while(1 == 0)
-#endif
+unsigned int aos_debug_reboot_reason_get(void);
+
+/** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* AOS_DEBUG_H */
-
+#endif /* AOS_DBG_H */

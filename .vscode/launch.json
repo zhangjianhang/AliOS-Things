@@ -2,16 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "AOS DEBUG",
+            "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}\\out\\eclipse_debug\\last_built.elf",
+            "program": "${workspaceRoot}/out/helloworld@developerkit/binary/helloworld@developerkit.elf",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": true,
-            "miDebuggerServerAddress": "localhost:3333",
+            "miDebuggerServerAddress": "localhost:4242",
             "serverLaunchTimeout": 2000,
             "targetArchitecture": "ARM",
             "setupCommands": [
@@ -19,30 +19,32 @@
                     "text": "cd ${workspaceRoot}"
                 },
                 {
-                    "text": "source .gdbinit"
+                    "text": "target remote localhost:4242"
                 },
                 {
-                    "text": "target remote localhost:3333"
-                },
-                {
-                    "text": "file out/eclipse_debug/last_built.elf"
+                    "text": "file out/helloworld@developerkit/binary/helloworld@developerkit.elf"
                 },
                 {
                     "text": "break application_start"
+                },
+                {
+                    "text": "monitor reset"
+                },
+                {
+                    "text": "load"
                 }
             ],
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
+            "preLaunchTask": "alios-studio: Debug",
+            "MIMode": "gdb",
             "osx": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb"
             },
             "linux": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb"
             },
             "windows": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb.exe"
             }
         }

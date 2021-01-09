@@ -1,5 +1,20 @@
+/*
+ * Copyright (C) 2016 YunOS Project. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <k_config.h>
-#include <yoc_auto_config.h>
 
 #define VIC_TSPDR 0XE000EC08
 
@@ -38,7 +53,7 @@
 .type cpu_intrpt_save, %function
 cpu_intrpt_save:
     mfcr    r0, psr
-    psrclr  ie, fe
+    psrclr  ie
     rts
 
 .type cpu_intrpt_restore, %function
@@ -73,7 +88,7 @@ cpu_intrpt_switch:
 
 .type cpu_first_task_start, %function
 cpu_first_task_start:
-    psrclr  ie, fe
+    psrclr  ie
     jbr     __tspend_handler_nosave
 
 /******************************************************************************
@@ -95,12 +110,12 @@ tspend_handler:
     ldw     r1, (r1)
     stw     sp, (r1)
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-    jbsr    krhino_task_sched_stats_get
+#if (YUNOS_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    jbsr    krhino_stack_ovf_check
 #endif
 
-#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
-    jbsr    krhino_stack_ovf_check
+#if (YUNOS_CONFIG_TASK_SCHED_STATS > 0)
+    jbsr    krhino_task_sched_stats_get
 #endif
 
 __tspend_handler_nosave:

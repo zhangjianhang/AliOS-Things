@@ -1,88 +1,59 @@
-# AliOS Things  
-　　AliOS家族旗下面向IoT领域的轻量级物联网嵌入式操作系统AliOS Things将致力于搭建云端一体化IoT基础设施，具备极致性能、极简开发、云端一体、丰富组件、安全防护等关键能力，并支持终端设备连接到阿里云Link，可广泛应用在智能家居、智慧城市、新出行等领域。
-  
-## AliOS Things　特性
+<br/>
+<div align="center">
+  <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
+</div>
+<br/>
+<div align="center">
 
-**极简开发**  
+[![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-　　基于Linux平台，提供MCU虚拟化环境，开发者直接在Linux平台上开发硬件无关的IoT应用和软件库，使用GDB/Valgrind/SystemTap 等PC平台工具诊断开发问题  
-　　提供IDE，支持系统/内核行为Trace、Mesh组网图形化显示  
-　　提供Shell交互，支持内存踩踏、泄露、最大栈深度等各类侦测  
-　　提供面向组件的编译系统以及Cube工具，支持灵活组合IoT产品软件栈  
-　　提供包括存储(掉电保护、负载均衡)在内的各类产品级别的组件
-  
-**即插即用的连接和丰富服务**  
+</div>
+<br/>
 
-　　支持umesh即插即用网络技术，设备上电自动连网  
-　　通过Alink与阿里云计算IoT服务无缝连接
+EN | [中文](./README-zh.md)
 
-**细颗粒度的FOTA更新**  
+AliOS Things is Alibaba's IoT version of AliOS Family, it was announced in [The Computing Conference 2017](https://yunqi.aliyun.com) in Hangzhou by Alibaba Cloud, and open sourced in 20<sup>th</sup>, October, 2017 at github:https://github.com/alibaba/AliOS-Things.
 
-　　支持应用代码独立编译映像，IoT App独立极小映像升级  
-　　支持映像高度压缩
+## Architecture Overview
 
-**彻底全面的安全保护**
-  
-　　提供系统和芯片级别安全保护  
-　　支持可信运行环境(支持ARMV8-M Trust Zone)  
-　　支持预置ID2根身份证和非对称密钥以及基于ID2的可信连接和服务
+AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, RISCV, rl78, rx600, xtensa etc. 200+ AliOS Things certified chips and modules, and 100+ certified sensors.
 
-**高度优化的性能**
-  
-　　内核支持Idle Task成本，Ram<1K,Rom<2k，提供硬实时能力  
-　　提供YLOOP事件框架以及基于此整合的核心组件，避免栈空间消耗，核心架构良好支持极小FootPrint的设备
+AliOS Things adapts Layered Architecture and Component Architecture including:
 
-**解决IoT实际问题的特性演进**
-  
-　　更好的云端一体融合优化，更简单的开发体验，更安全，更优整体性能和算法支持，更多的特性演进，我们在路上  
-　　Stay Hungry，Stay Foolish！
+- BSP: Board Support Package
+- HAL: Hardware Abstraction Layer, includes WiFi, UART, Flash etc.
+- Kernel: includes Rhino RTOS Kernel, VFS, KV Storage, CLI, C++ etc. 
+- Network: includes LwIP(Lightweight TCP/IP), uMesh mesh networking stack, BLE(Bluetooth Low Energy), LoRaWan stack, AT Commands Module etc.
+- Security: includes TLS(mbedTLS and cutomized iTLS), ID2, SST(Trusted Storage), Crypto, TEE(Trusted Execution Environment) etc.
+- AOS API: AliOS Things exposed APIs for Application and Middleware
+- Middleware: Alibaba's value-added and commonly seen IoT components, includes Linkkit, OTA(Differential Incremental Security Upgrade), ulog(log service), uData(Sensor Framework), uLocation(Location Framework), WiFi Provision etc.
+- Application: a lot of sample codes
 
------
+All modules have been organized as Components, Configuring via menuconfig, which enables applications to choose components needed easily.
 
-# 文档
+## Documentation
 
-  * [Coding Style Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Coding-Style-Guide)
+### Quick Start
 
-  * [Porting Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Porting-Guide)
+Please refer to [Quick Start](https://help.aliyun.com/document_detail/161037.html)
 
-  * [API Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-API-Guide)
+### Docs
 
-  * [Application Development Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-APP-DEV-Guide)
+AliOS Things Docs: [Documentation](https://help.aliyun.com/document_detail/161023.html)
 
-  * [AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio)
+### Contributing
 
-------
+Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
 
-# 下载
+### Connecting to IoT Platform
 
-  * [VS Code](https://code.visualstudio.com)
+AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](https://iot.console.aliyun.com/quick_start) quickly.
 
-  * [Python](https://www.python.org/downloads/)
+## Community
 
-  * [GCC](https://launchpad.net/gcc-arm-embedded/+download)
+* [DingTalk Group](https://img.alicdn.com/tfs/TB1KgBhjXY7gK0jSZKzXXaikpXa-1170-818.png)
+* [Alibaba Cloud IoT Community](https://developer.aliyun.com/group/aliiot)
 
-  * [FTDI: UART driver](http://www.ftdichip.com/Drivers/D2XX.htm)
+## License
 
-  * [STLink](http://www.st.com/content/st_com/en/products/development-tools/hardware-development-tools/development-tool-hardware-for-mcus/debug-hardware-for-mcus/debug-hardware-for-stm32-mcus/st-link-v2.html)
-
-  * [CP2012 driver](https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers)
-
-------
-
-# License
-
-  Alios is released under the Apache 2.0 license.
-
-    Copyright 2015-2017 Alibaba Group Holding Ltd.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at following link.
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+  AliOS Things is released under the [Apache 2.0 license](LICENSE)

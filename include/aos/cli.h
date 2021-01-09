@@ -1,150 +1,119 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+/**
+ * @file cli.h
+ * @copyright Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef AOS_CLI_H
 #define AOS_CLI_H
 
-#define MAX_COMMANDS 64
-#define INBUF_SIZE   128
-#define OUTBUF_SIZE  2048
-
-#ifndef FUNCPTR
-typedef void (*FUNCPTR)(void);
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/* Structure for registering CLI commands */
+/**
+ * @addtogroup aos_cli cli
+ * Cli AOS API.
+ * Used for APP.
+ * @{
+ */
+
+/* This struct is used to define the cli cmd format */
 struct cli_command {
-    const char *name;
-    const char *help;
+    const char *name;   /**< cmd name */
+    const char *help;   /**< cmd help info */
 
-    void (*function)(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+    void (*function)(char *outbuf, int len, int argc, char **argv); /**< cmd process function */
 };
 
-struct cli_st {
-    int initialized;
-    int echo_disabled;
-
-    const struct cli_command *commands[MAX_COMMANDS];
-
-    unsigned int num_commands;
-    unsigned int bp; /* buffer pointer */
-
-    char inbuf[INBUF_SIZE];
-    char outbuf[OUTBUF_SIZE];
-};
-
-#define CLI_ARGS char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv
-
-#ifdef CONFIG_AOS_CLI
-
-#define cmd_printf(...)                                            \
-    do {                                                           \
-        if (xWriteBufferLen > 0) {                                 \
-            snprintf(pcWriteBuffer, xWriteBufferLen, __VA_ARGS__); \
-            xWriteBufferLen-= os_strlen(pcWriteBuffer);            \
-            pcWriteBuffer+= os_strlen(pcWriteBuffer);              \
-        }                                                          \
-    } while(0)
-
-
 /**
- * This function registers a command with the command-line interface.
+ * @brief Initialize the CLI module
  *
- * @param[in]  command  The structure to register one CLI command
+ * @return 0 on success, otherwise failed
  *
- * @return  0 on success, error code otherwise.
- */
-int aos_cli_register_command(const struct cli_command *command);
-
-/**
- * This function unregisters a command from the command-line interface.
- *
- * @param[in]  command  The structure to unregister one CLI command
- *
- * @return  0 on success,  error code otherwise.
- */
-int aos_cli_unregister_command(const struct cli_command *command);
-
-/**
- * Register a batch of CLI commands
- * Often, a module will want to register several commands.
- *
- * @param[in]  commands      Pointer to an array of commands.
- * @param[in]  num_commands  Number of commands in the array.
- *
- * @return  0 on success， error code otherwise.
- */
-int aos_cli_register_commands(const struct cli_command *commands, int num_commands);
-
-/**
- * Unregister a batch of CLI commands
- *
- * @param[in]  commands      Pointer to an array of commands.
- * @param[in]  num_commands  Number of commands in the array.
- *
- * @return  0 on success, error code otherwise.
- */
-int aos_cli_unregister_commands(const struct cli_command *commands, int num_commands);
-
-/**
- * Print CLI msg
- *
- * @param[in]  buff  Pointer to a char * buffer.
- *
- * @return  0  on success, error code otherwise.
- */
-int aos_cli_printf(const char *buff, ...);
-
-/**
- * CLI initial function
- *
- * @return  0 on success, error code otherwise
  */
 int aos_cli_init(void);
 
 /**
- * Stop the CLI thread and carry out the cleanup
+ * @brief Stop the CLI task and carry out the cleanup
  *
- * @return  0 on success, error code otherwise.
+ * @return 0 on success, otherwise failed
  *
  */
 int aos_cli_stop(void);
 
-#else /* CONFIG_AOS_CLI */
+/**
+ * @brief Get CLI tag string for print
+ *
+ * @return CLI tag storing buffer
+ *
+ */
+const char *aos_cli_get_tag(void);
 
-#define cmd_printf(...) do {} while(0)
+/**
+ * @brief This function registers a command with the command-line interface
+ *
+ * @param[in] cmd the structure to regiter one CLI command
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_register_command(const struct cli_command *cmd);
 
-static inline int aos_cli_register_command(const struct cli_command *command)
-{
-    return 0;
-}
+/**
+ * @brief This function unregisters a command from the command-line interface
+ *
+ * @param[in] cmd the structure to unregister one CLI command
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_unregister_command(const struct cli_command *cmd);
 
-static inline int aos_cli_unregister_command(const struct cli_command *command)
-{
-    return 0;
-}
+/**
+ * @brief This function registers a batch of CLI commands
+ *
+ * @param[in] cmds pointer to an array of commands
+ * @param[in] num  number of commands in the array
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_register_commands(const struct cli_command *cmds, int num);
 
-static inline int aos_cli_register_commands(const struct cli_command *commands,
-                                            int num_commands)
-{
-    return 0;
-}
+/**
+ * @brief This function unregisters a batch of CLI commands
+ *
+ * @param[in] cmds pointer to an array of commands
+ * @param[in] num  number of command in the array
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
 
-static inline int aos_cli_unregister_commands(const struct cli_command *commands,
-                                              int num_commands)
-{
-    return 0;
-}
+/**
+ * @brief Print CLI message
+ *
+ * @param[in] fmt pointer to a char * buffer
+ *
+ * @return 0 on success, otherwise failed
+ */
+int aos_cli_printf(const char *fmt, ...);
 
-static inline int aos_cli_init(void)
-{
-    return 0;
-}
+/**
+ * @brief Set cli login password
+ *
+ * @param[in] old_passwd
+ * @param[in] new_passwd
+ *
+ * @return 0 on success, otherwise failed
+ *
+ */
+int aos_cli_chg_passwd(char *old_passwd, char *new_passwd);
 
-static inline int aos_cli_stop(void)
-{
-    return 0;
+/** @} */
+
+#ifdef __cplusplus
 }
 #endif
 
